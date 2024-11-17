@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Contact - Halanayakanahalli</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #hospital-list {
+            margin-top: 20px;
+            text-align: left;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+<div class="container">
+    <h1>Emergency Contact - Halanayakanahalli</h1>
+    <button onclick="fetchHospitals()">Find Nearest Hospitals</button>
+    <div id="hospital-list"></div>
+</div>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    let map;
+
+    const halanayakanahalliLocation = {
+        lat: 12.9066,
+        lng: 77.6785
+    }; // Latitude and Longitude for Halanayakanahalli Village, 560035.
+
+    function initMap() {
+        map = L.map('map').setView([halanayakanahalliLocation.lat, halanayakanahalliLocation.lng], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors',
+        }).addTo(map);
+
+        // Add marker for Halanayakanahalli Village
+        L.marker([halanayakanahalliLocation.lat, halanayakanahalliLocation.lng])
+            .addTo(map)
+            .bindPopup('Halanayakanahalli Village (560035)')
+            .openPopup();
+    }
+
+    function fetchHospitals() {
+        const hospitals = [
+            {
+                name: "Manipal Hospital",
+                lat: halanayakanahalliLocation.lat + 0.02, // Slight offset to simulate location
+                lng: halanayakanahalliLocation.lng + 0.02,
+                distance: 5.45, // Distance in km
+                phone: "+91 100"
+            },
+            {
+                name: "Apollo Hospital",
+                lat: halanayakanahalliLocation.lat + 0.03, // Slight offset to simulate location
+                lng: halanayakanahalliLocation.lng + 0.03,
+                distance: 3.53, // Distance in km
+                phone: "+91 1001"
+            },
+            {
+                name: "Belenus Hospital",
+                lat: halanayakanahalliLocation.lat + 0.04, // Slight offset to simulate location
+                lng: halanayakanahalliLocation.lng + 0.04,
+                distance: 6.87, // Distance in km
+                phone: "+91 123"
+            }
+        ];
+
+        const hospitalListDiv = document.getElementById('hospital-list');
+        hospitalListDiv.innerHTML = '<p>Loading hospital details...</p>';
+
+        // Display hospital details
+        hospitalListDiv.innerHTML = `
+            <h3>Nearest Hospitals:</h3>
+        `;
+        
+        hospitals.forEach((hospital, index) => {
+            hospitalListDiv.innerHTML += `
+                <div>
+                    <strong>${index + 1}. ${hospital.name}</strong> <br>
+                    Distance: ${hospital.distance} km <br>
+                    Phone: ${hospital.phone} <br>
+                    <button onclick="callHospital('${hospital.phone}')">Call</button>
+                    <button onclick="focusOnHospital(${hospital.lat}, ${hospital.lng}, '${hospital.name}')">View on Map</button>
+                </div>
+                <hr />
+            `;
+            // Add hospital markers to the map
+            L.marker([hospital.lat, hospital.lng])
+                .addTo(map)
+                .bindPopup(`<strong>${hospital.name}</strong><br>Distance: ${hospital.distance} km`);
+        });
+
+        // Zoom to the first hospital's location by default
+        map.setView([hospitals[0].lat, hospitals[0].lng], 14);
+    }
+
+    function callHospital(phoneNumber) {
+        alert(`Calling ${phoneNumber}...`);
+    }
+
+    function focusOnHospital(lat, lng, name) {
+        map.setView([lat, lng], 16);
+        L.popup()
+            .setLatLng([lat, lng])
+            .setContent(`<strong>${name}</strong>`)
+            .openOn(map);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initMap();
+    });
+</script>
+
+</body>
+</html>
